@@ -1,0 +1,386 @@
+/* ============================================================
+   🎓 EduPredict — Design global modernisé (2025)
+   Auteur : Mathis + ChatGPT
+============================================================ */
+
+/* ---------------------------
+   🌍 RESET + FOND GLOBAL
+---------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f7faff 0%, #e8f0ff 100%);
+  color: #222;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------------------------
+   🌐 BARRE DE NAVIGATION
+---------------------------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar.scrolled {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1em 2em;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  color: #007bff;
+}
+
+.logo span {
+  color: #222;
+}
+
+/* Liens navigation */
+.nav-links {
+  display: flex;
+  gap: 2em;
+}
+
+.nav-links a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: #0056b3;
+}
+
+/* Hamburger menu */
+.menu-toggle {
+  display: none;
+  font-size: 1.8em;
+  cursor: pointer;
+  color: #007bff;
+}
+
+/* ---------------------------
+   🏠 PAGE D’ACCUEIL
+---------------------------- */
+.home {
+  flex: 1;
+  padding: 3em 1em;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.intro {
+  margin-bottom: 3em;
+}
+
+.intro h2 {
+  color: #007bff;
+  font-size: 1.8em;
+  margin-bottom: 0.5em;
+}
+
+.intro p {
+  color: #555;
+  font-size: 1.1em;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Cartes principales */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2em;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 320px;
+  padding: 2em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+  color: #007bff;
+  font-size: 1.3em;
+  margin-bottom: 0.5em;
+}
+
+.card p {
+  color: #555;
+  margin-bottom: 1.5em;
+}
+
+/* Boutons */
+.button {
+  display: inline-block;
+  background: #007bff;
+  color: white;
+  padding: 0.6em 1.4em;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.button:hover {
+  background: #0056b3;
+}
+
+/* ---------------------------
+   🧾 FORMULAIRES
+---------------------------- */
+form.form {
+  background: white;
+  max-width: 550px;
+  margin: 2em auto;
+  padding: 2em;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease;
+}
+
+form label {
+  display: block;
+  text-align: left;
+  margin-bottom: 0.3em;
+  font-weight: 500;
+  color: #333;
+}
+
+form input,
+form textarea,
+form select {
+  width: 100%;
+  padding: 0.8em;
+  margin-bottom: 1em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form input:focus,
+form textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.2);
+}
+
+form button {
+  width: 100%;
+  padding: 0.9em;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+form button:hover {
+  background: #0056b3;
+}
+
+.card-result {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 2em auto;
+  padding: 2em;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+
+/* ---------------------------
+   🔗 LIENS ET FOOTER
+---------------------------- */
+.back-link {
+  text-align: center;
+  margin-top: 1.5em;
+}
+
+.back-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  text-align: center;
+  margin-top: auto;
+  padding: 1.5em;
+  background: #f1f5fb;
+  color: #666;
+  font-size: 0.9em;
+  border-top: 1px solid #ddd;
+}
+
+/* ---------------------------
+   📱 RESPONSIVE
+---------------------------- */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    flex-direction: column;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 1em 0;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links a {
+    padding: 1em 0;
+    font-size: 1.1em;
+  }
+
+  .card-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* ---------------------------
+   🧱 SECTIONS DYNAMIQUES
+---------------------------- */
+.dynamic-section {
+  background: #f8faff;
+  border-radius: 12px;
+  padding: 1.5em;
+  margin: 2em 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dynamic-section h3 {
+  color: #007bff;
+  margin-bottom: 1em;
+}
+
+.add-button {
+  display: inline-block;
+  background: #e8f0ff;
+  color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 8px;
+  padding: 0.5em 1em;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-button:hover {
+  background: #007bff;
+  color: white;
+}
+
+.experience-group, .course-group {
+  background: white;
+  border-radius: 8px;
+  padding: 1em;
+  margin-bottom: 1em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------------------------
+   ❌ Boutons de suppression dynamiques
+---------------------------- */
+.remove-button {
+  float: right;
+  background: transparent;
+  border: none;
+  color: #d9534f;
+  font-size: 1.2em;
+  cursor: pointer;
+  margin-bottom: 0.3em;
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.remove-button:hover {
+  color: #b52b27;
+  transform: scale(1.1);
+}
+
+
+/* ---------------------------
+   🎞️ ANIMATIONS
+---------------------------- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rating {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.recap ul li {
+  margin-bottom: 0.6em;
+}
+
+.recap h3 {
+  border-bottom: 1px solid #e0e7ff;
+  padding-bottom: 0.3em;
+}
+
