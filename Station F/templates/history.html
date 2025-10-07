@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Historique des prédictions — EduPredict</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">🎓 <span>EduPredict</span></div>
+      <nav class="nav-links">
+        <a href="/">Accueil</a>
+        <a href="/api/predict">Prédire</a>
+        <a href="/rate-form">Noter</a>
+        <a href="/history">Historique</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="home">
+    <h2>📜 Historique des prédictions</h2>
+    {% if predictions %}
+      <table class="history-table">
+        <tr>
+          <th>Date</th>
+          <th>Professeur</th>
+          <th>Ville</th>
+          <th>Cours</th>
+          <th>Note IA</th>
+          <th>Modèle</th>
+        </tr>
+        {% for p in predictions %}
+        <tr>
+          <td>{{ p.timestamp }}</td>
+          <td>{{ p.nom }} {{ p.prenom }}</td>
+          <td>{{ p.ville }}</td>
+          <td>{{ p.cours }}</td>
+          <td><strong>{{ p.prediction }}</strong>/5</td>
+          <td>{{ p.model_used }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p>Aucune prédiction enregistrée pour l’instant.</p>
+    {% endif %}
+  </main>
+
+  <footer>
+    <p>© 2025 EduPredict — Historique des prédictions IA.</p>
+  </footer>
+</body>
+</html>

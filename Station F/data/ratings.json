@@ -4,6 +4,13 @@
     "prenom": "Marie",
     "cours": "Web 3",
     "note": 4.6,
-    "commentaire": "Tr\u00e8s bon prof"
+    "commentaire": "Très bon prof"
+  },
+  {
+    "nom": "Test",
+    "prenom": "Theo",
+    "cours": "SQL",
+    "note": 4.8,
+    "commentaire": "super"
   }
 ]

@@ -59,64 +59,140 @@ async def predict_submit(request: Request):
     """
     form = await request.form()
     form_dict = dict(form)
+    print("📦 Champs reçus :", list(form_dict.keys()))
+
 
     # ----------- INFOS GÉNÉRALES DU PROF -----------
     nom = form_dict.get("nom", "").strip()
     prenom = form_dict.get("prenom", "").strip()
     ville = form_dict.get("ville", "").strip()
     description = form_dict.get("description", "").strip()
-    diplome_niveau = form_dict.get("diplome_niveau", "").strip()
-    diplome_domaine = form_dict.get("diplome_domaine", "").strip()
+
+    # ----------- DIPLÔMES -----------
+    degrees = []
+    for key in form_dict:
+        if key.startswith("degree_") and key.endswith("_level"):
+            prefix = key[:-5]  # retire "_level"
+            level = form_dict.get(f"{prefix}level", "").strip()
+            field = form_dict.get(f"{prefix}field", "").strip()
+            if level or field:
+                degrees.append({
+                    "level": level,
+                    "field": field
+                })
+    print("📋 Diplomes :", degrees)
+
+    if degrees:
+        highest_degree = sorted(
+            degrees,
+            key=lambda d: ["Aucun", "Certificat", "Licence", "Master", "Doctorat"].index(d["level"])
+        )[-1]["level"]
+        highest_degree_domain = ", ".join(d["field"] for d in degrees if d["field"])
+    else:
+        highest_degree = None
+        highest_degree_domain = None
+
+
     course_title = form_dict.get("course_title", "").strip()
 
     # ----------- COURS PRÉCÉDENTS -----------
     courses = []
     notes = []
     for key in form_dict:
-        if key.startswith("course_") and key.endswith("_title"):
-            prefix = key[:-6]  # ex: "course_1_"
+        if key.startswith("course_") and key.endswith("_title") and key != "course_title":
+            prefix = key[:-5]  # ex: "course_1_"
             title = form_dict.get(f"{prefix}title", "").strip()
             school = form_dict.get(f"{prefix}school", "").strip()
-            rating = form_dict.get(f"{prefix}rating", "")
-            if title or school:
-                try:
-                    rating_val = float(rating)
-                    if 0 <= rating_val <= 5:
-                        notes.append(rating_val)
-                except Exception:
-                    rating_val = None
+            rating = form_dict.get(f"{prefix}rating", "").strip()
+
+            if title or school or rating:
+                rating_val = None
+                if rating:
+                    try:
+                        # ✅ Tolère les virgules ou points
+                        rating_val = float(rating.replace(",", "."))
+                        if 0 <= rating_val <= 5:
+                            notes.append(rating_val)
+                        else:
+                            print(f"⚠️ Note invalide ignorée ({rating_val})")
+                    except ValueError:
+                        print(f"⚠️ Note non convertible : '{rating}'")
+
                 courses.append({
                     "title": title,
                     "school": school,
                     "rating": rating_val
                 })
+    print("📋 Expériences reçues :", courses)
 
+    # Calcul de la moyenne des notes
     mean_past_rating = round(sum(notes) / len(notes), 2) if notes else None
+    print(f"📊 Moyenne calculée : {mean_past_rating}")
 
     # ----------- EXPÉRIENCES -----------
     experiences = []
     for key in form_dict:
         if key.startswith("experience_") and key.endswith("_description"):
-            prefix = key[:-12]  # ex: "experience_1_"
-            desc = form_dict.get(f"{prefix}description", "").strip()
-            duration = form_dict.get(f"{prefix}duration", "").strip()
+            prefix1 = key[:-11]  # ex: "experience_1_"
+            desc = form_dict.get(f"{prefix1}description", "").strip()
+            if desc:
+                experiences.append({
+                    "description": desc
+                })
+        if key.startswith("experience_") and key.endswith("_duration"):
+            prefix2 = key[:-8]  # ex: "experience_1_"
+            duration = form_dict.get(f"{prefix2}duration", "").strip()
             if desc or duration:
                 experiences.append({
-                    "description": desc,
                     "duration": duration
                 })
+    
+
+    # ----------- CALCUL DU TEMPS TOTAL D’EXPÉRIENCE -----------
+    import re
+
+    def parse_duration(text):
+        """
+        Convertit une durée textuelle en années (float)
+        Exemples : "2 ans" -> 2.0, "6 mois" -> 0.5, "18 mois" -> 1.5
+        """
+        if not text:
+            return 0.0
+
+        text = text.lower().replace(",", ".").strip()
+
+        # Extraire le premier nombre (ex: "2", "1.5", "18")
+        match = re.search(r"(\d+(?:\.\d+)?)", text)
+        if not match:
+            return 0.0
+
+        value = float(match.group(1))
+
+        # Vérifie si c’est en mois ou en années
+        if "mois" in text:
+            return round(value / 12, 2)
+        elif "an" in text or "ans" in text or "année" in text:
+            return round(value, 2)
+        else:
+            # Valeur par défaut : supposée en années
+            return round(value, 2)
+
+    # Calcul du total des années d’expérience
+    total_experience_years = round(sum(parse_duration(e.get("duration", "")) for e in experiences),2)
+    print(f"💼 Total d’expérience calculé : {total_experience_years} ans")
+
 
     # ----------- FEATURES POUR LE MODÈLE -----------
     infos = {
         "city": ville or None,
-        "highest_degree": diplome_niveau or None,
-        "highest_degree_domain": diplome_domaine or None,
-        "num_diplomas": None,
+        "highest_degree": highest_degree,
+        "highest_degree_domain": highest_degree_domain,
+        "num_diplomas": len(degrees),
         "num_experiences": len(experiences) if experiences else None,
-        "total_experience_years": None,
+        "total_experience_years": total_experience_years if total_experience_years > 0 else None,
         "mean_past_rating": mean_past_rating,
-        "description": description or None,
-        "course_title": course_title or None,
+        "description": description or "-",
+        "course_title": course_title or "-",
     }
 
     # ----------- SÉLECTION DU MODÈLE -----------
@@ -127,6 +203,8 @@ async def predict_submit(request: Request):
         model = model_prospectif
         model_used = "Prospectif"
 
+    print(f"🎯 Modèle sélectionné : {model_used}")
+
     # ----------- PRÉDICTION -----------
     try:
         X = pd.DataFrame([infos])
@@ -135,7 +213,30 @@ async def predict_submit(request: Request):
         print("⚠️ Erreur prédiction :", e)
         prediction = 3.7
 
-    # ----------- RENDU TEMPLATE -----------
+    # ----------- ENREGISTREMENT HISTORIQUE -----------
+    try:
+        path_hist = os.path.join(DATA_DIR, "predictions.json")
+        history = json.load(open(path_hist))
+    except Exception:
+        history = []
+
+    history.append({
+        "nom": nom,
+        "prenom": prenom,
+        "ville": ville,
+        "highest_degree": highest_degree,
+        "highest_degree_domain": highest_degree_domain,
+        "num_diplomas": len(degrees),
+        "cours": course_title,
+        "mean_past_rating": mean_past_rating,
+        "total_experience_years": total_experience_years if total_experience_years > 0 else None,
+        "prediction": round(prediction, 2),
+        "model_used": model_used,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    })
+    json.dump(history, open(path_hist, "w"), indent=2, ensure_ascii=False)
+
+    # ----------- RENDU DU TEMPLATE -----------
     return templates.TemplateResponse("predict.html", {
         "request": request,
         "prediction": round(prediction, 2),
@@ -144,13 +245,13 @@ async def predict_submit(request: Request):
             "nom": nom,
             "prenom": prenom,
             "ville": ville or "Non renseignée",
-            "diplome_niveau": diplome_niveau,
-            "diplome_domaine": diplome_domaine,
-            "description": description or "—",
-            "course_title": course_title or "—",
+            "degrees": degrees,
+            "description": description if description else "Aucune description fournie",
+            "course_title": course_title or "Non renseignée",
             "mean_past_rating": mean_past_rating,
             "courses": courses,
-            "experiences": experiences
+            "experiences": experiences,
+            "total_experience_years": total_experience_years if total_experience_years > 0 else None,
         }
     })
 
@@ -195,6 +296,20 @@ async def rate_submit(
 @app.get("/predict-form")
 async def redirect_predict():
     return RedirectResponse("/api/predict")
+
+# ---------------------------------------------------------
+# 📜 HISTORIQUE DES PRÉDICTIONS
+# ---------------------------------------------------------
+@app.get("/history", response_class=HTMLResponse)
+async def show_history(request: Request):
+    """Affiche l'historique des prédictions IA."""
+    try:
+        data = json.load(open(os.path.join(DATA_DIR, "predictions.json")))
+    except Exception:
+        data = []
+    data = list(reversed(data))  # plus récentes d'abord
+    return templates.TemplateResponse("history.html", {"request": request, "predictions": data})
+
 
 # ---------------------------------------------------------
 # 🚀 LANCEMENT AUTOMATIQUE AVEC NGROK

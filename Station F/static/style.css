@@ -384,3 +384,48 @@ footer {
   padding-bottom: 0.3em;
 }
 
+/* ---------------------------
+   📜 Table d'historique
+---------------------------- */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2em;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.history-table th, .history-table td {
+  padding: 0.8em;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.history-table th {
+  background: #007bff;
+  color: white;
+}
+
+.history-table tr:hover {
+  background: #f7faff;
+}
+
+.degree-group {
+  background: white;
+  border-radius: 8px;
+  padding: 1em;
+  margin-bottom: 1em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.degree-group select {
+  width: 100%;
+  padding: 0.8em;
+  margin-bottom: 1em;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1em;
+}
+
