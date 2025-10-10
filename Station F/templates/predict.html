@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Prédire une satisfaction — EduPredict</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- 🌐 Barre de navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">🎓 <span>EduPredict</span></div>
+      <nav class="nav-links" id="navLinks">
+        <a href="/">Accueil</a>
+        <a href="/api/predict">Prédire</a>
+        <a href="/rate-form">Noter</a>
+      </nav>
+      <div class="menu-toggle" id="menuToggle">☰</div>
+    </div>
+  </header>
+
+  <!-- 🔮 Formulaire principal -->
+  <main>
+    <form method="post" action="/api/predict" class="form" id="predictForm">
+      <h2 style="text-align:center; margin-bottom:1em;">🔮 Prédire la satisfaction d’un professeur</h2>
+
+      <label>Nom :</label>
+      <input name="nom" placeholder="Dupont" required>
+
+      <label>Prénom :</label>
+      <input name="prenom" placeholder="Marie">
+
+      <label>Ville :</label>
+      <input name="ville" placeholder="Paris">
+
+      <label>Description :</label>
+      <textarea name="description" rows="3" placeholder="Professeur passionné par la data science..."></textarea>
+
+      <label>Diplôme — niveau :</label>
+      <input name="diplome_niveau" placeholder="Master, Doctorat..." required>
+
+      <label>Diplôme — domaine :</label>
+      <input name="diplome_domaine" placeholder="Informatique, Mathématiques..." required>
+
+      <label>Nom du cours à venir :</label>
+      <input name="course_title" placeholder="Introduction à la data science" required>
+
+      <!-- 🎓 EXPÉRIENCES DYNAMIQUES -->
+      <div class="dynamic-section">
+        <h3>Expériences</h3>
+        <div id="experience-container">
+          <div class="experience-group">
+            <button type="button" class="remove-button" title="Supprimer cette expérience">❌</button>
+            <label>Expérience :</label>
+            <input name="experience_1_description" placeholder="Professeur de statistiques à HETIC">
+            <label>Durée :</label>
+            <input name="experience_1_duration" placeholder="2 ans">
+          </div>
+        </div>
+        <button type="button" class="add-button" id="addExperience">+ Ajouter une autre expérience</button>
+      </div>
+
+      <!-- 📚 COURS DYNAMIQUES -->
+      <div class="dynamic-section">
+        <h3>Cours précédents</h3>
+        <div id="course-container">
+          <div class="course-group">
+            <button type="button" class="remove-button" title="Supprimer ce cours">❌</button>
+            <label>Nom du cours :</label>
+            <input name="course_1_title" placeholder="Python pour débutants">
+            <label>Établissement :</label>
+            <input name="course_1_school" placeholder="Université de Paris">
+            <label>Note reçue :</label>
+            <input name="course_1_rating" type="number" step="0.1" min="0" max="5" placeholder="4.5">
+          </div>
+        </div>
+        <button type="button" class="add-button" id="addCourse">+ Ajouter un autre cours</button>
+      </div>
+
+
+      <button type="submit">Lancer la prédiction</button>
+    </form>
+
+    {% if prediction %}
+      <div class="card-result">
+        <h2>⭐ Résultat de la prédiction</h2>
+
+        <div class="recap">
+          <h3>🧑‍🏫 Informations du professeur</h3>
+          <ul>
+            <li><strong>Nom :</strong> {{ infos.nom }} {{ infos.prenom }}</li>
+            <li><strong>Ville :</strong> {{ infos.ville }}</li>
+            <li><strong>Diplôme :</strong> {{ infos.diplome_niveau }} en {{ infos.diplome_domaine }}</li>
+            <li><strong>Description :</strong> {{ infos.description }}</li>
+          </ul>
+
+          <h3>📘 Cours à venir</h3>
+          <p><strong>{{ infos.course_title }}</strong></p>
+
+          {% if infos.courses %}
+            <h3>📚 Cours précédents</h3>
+            <ul>
+              {% for c in infos.courses %}
+                <li>
+                  <strong>{{ c.title }}</strong> — {{ c.school }}
+                  {% if c.rating %}<span class="rating"> (Note : {{ c.rating }}/5)</span>{% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% if infos.experiences %}
+            <h3>💼 Expériences</h3>
+            <ul>
+              {% for e in infos.experiences %}
+                <li>{{ e.description }} — <em>{{ e.duration }}</em></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% if infos.mean_past_rating %}
+            <p><strong>Moyenne des cours précédents :</strong> {{ infos.mean_past_rating }}/5</p>
+          {% endif %}
+
+          <div class="prediction-score">
+            <h2>Note prédite : <span>{{ prediction }}/5</span></h2>
+            <p class="model-used">Modèle utilisé : <strong>{{ model_used }}</strong></p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+
+    <p class="back-link"><a href="/">← Retour à l’accueil</a></p>
+  </main>
+
+  <footer>
+    <p>© 2025 EduPredict — Une innovation EdTech développée à Station F.</p>
+  </footer>
+
+  <!-- 📜 Scripts -->
+  <script src="/static/script.js"></script>
+  <script>
+    // ----- Menu mobile -----
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+    menuToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("active");
+      menuToggle.classList.toggle("open");
+    });
+
+    // ----- Ajout et suppression d'expériences -----
+    let expCount = 1;
+    document.getElementById("addExperience").addEventListener("click", () => {
+      expCount++;
+      const container = document.getElementById("experience-container");
+      const div = document.createElement("div");
+      div.classList.add("experience-group");
+      div.innerHTML = `
+        <button type="button" class="remove-button" title="Supprimer cette expérience">❌</button>
+        <label>Expérience :</label>
+        <input name="experience_${expCount}_description" placeholder="Nouvelle expérience">
+        <label>Durée :</label>
+        <input name="experience_${expCount}_duration" placeholder="Durée">
+      `;
+      container.appendChild(div);
+      addRemoveEvent(div.querySelector(".remove-button"));
+    });
+
+    // ----- Ajout et suppression de cours -----
+    let courseCount = 1;
+    document.getElementById("addCourse").addEventListener("click", () => {
+      courseCount++;
+      const container = document.getElementById("course-container");
+      const div = document.createElement("div");
+      div.classList.add("course-group");
+      div.innerHTML = `
+        <button type="button" class="remove-button" title="Supprimer ce cours">❌</button>
+        <label>Nom du cours :</label>
+        <input name="course_${courseCount}_title" placeholder="Nom du cours">
+        <label>Établissement :</label>
+        <input name="course_${courseCount}_school" placeholder="Établissement">
+        <label>Note reçue :</label>
+        <input name="course_${courseCount}_rating" type="number" step="0.1" min="0" max="5" placeholder="4.5">
+      `;
+      container.appendChild(div);
+      addRemoveEvent(div.querySelector(".remove-button"));
+    });
+
+
+    // Fonction générique pour supprimer un bloc
+    function addRemoveEvent(button) {
+      button.addEventListener("click", (e) => {
+        e.target.closest(".experience-group, .course-group").remove();
+      });
+    }
+
+    // Activer la suppression sur les blocs initiaux
+    document.querySelectorAll(".remove-button").forEach(addRemoveEvent);
+  </script>
+</body>
+</html>
