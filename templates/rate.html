@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Noter un professeur — EduPredict</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="navbar">
+  <div class="nav-container">
+    <div class="logo">
+      🎓 <span>EduPredict</span>
+    </div>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Accueil</a>
+      <a href="/api/predict">Prédire</a>
+      <a href="/rate-form">Noter</a>
+      <a href="/history">Historique</a>
+    </nav>
+
+
+    <div class="menu-toggle" id="menuToggle">
+      ☰
+    </div>
+  </div>
+</header>
+
+
+  <main>
+    <form method="post" action="/rate-form" class="form">
+      <label>Nom :</label>
+      <input name="nom" placeholder="Dupont" required>
+
+      <label>Prénom :</label>
+      <input name="prenom" placeholder="Marie">
+
+      <label>Cours :</label>
+      <input name="cours" placeholder="Analyse de données avancée" required>
+
+      <label>Note (sur 5) :</label>
+      <input name="note" type="number" min="0" max="5" step="0.1" required>
+
+      <label>Commentaire :</label>
+      <textarea name="commentaire" rows="3" placeholder="Excellent pédagogue, exemples concrets..."></textarea>
+
+      <button type="submit">Envoyer ma note</button>
+    </form>
+
+    <p class="back-link"><a href="/">← Retour à l’accueil</a></p>
+  </main>
+
+  <footer>
+    <p>© 2025 EduPredict — Merci de contribuer à la qualité de l’enseignement.</p>
+  </footer>
+  <script src="/static/script.js"></script>
+</body>
+</html>
